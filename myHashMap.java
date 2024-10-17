@@ -1,5 +1,5 @@
 /*
- * *** YOUR NAME GOES HERE / YOUR SECTION NUMBER ***
+ * *** KASS SEREK / COMP272 002 ***
  *
  * This hashMap object represents an over simplification of Java's implementation of HashMap within
  * Java's Collection Framework Library. You are to complete the following methods:
@@ -220,17 +220,28 @@ class myHashMap<K,V> {
      */
 
     public V remove(K key) {
+        // locate the bucket index for the key
+        int index = getBucketIndex(key);
+        HashNode<K, V> head = bucket.get(index);
+        HashNode<K, V> prev = null;
 
-        /*
-         * ADD YOUR CODE HERE
-         *
-         * Review the code in the whole object to understand teh data structures layout.
-         * Additionally, review the method put() for inserting a new Key / Value pair into
-         * the HashMap. This method will do the opposite by removing an element. Do see
-         * the return value discussion in this method's prologue to make sure the correct
-         * return value is returned the invoking function based on the remove outcome.
-         */
-
+        // traverse the chain of nodes at this bucket
+        while (head != null) {
+            // if the key matches, remove the node
+            if (head.key.equals(key)) {
+                if (prev != null) {
+                    prev.next = head.next;
+                } else {
+                    bucket.set(index, head.next);
+                }
+                // decrement size since we removed a node
+                size--;
+                return head.value;
+            }
+            prev = head;
+            head = head.next;
+        }
+        // key not found
         return null;
     }
 
@@ -251,8 +262,8 @@ class myHashMap<K,V> {
 
         V originalValue = get(key);
 
-        if (originalValue == null || 
-           (! originalValue.equals(val)) ) {
+        if (originalValue == null ||
+                (! originalValue.equals(val)) ) {
             return false;
         }
 
@@ -321,8 +332,8 @@ class myHashMap<K,V> {
         }
 
         /*
-         * Check the load factor of the hashmap, if greater 
-         * than DEFAULT_LOAD_FACTOR, we will double the number 
+         * Check the load factor of the hashmap, if greater
+         * than DEFAULT_LOAD_FACTOR, we will double the number
          * of buckets of our hashmap.
          */
 
@@ -341,7 +352,7 @@ class myHashMap<K,V> {
              * Traverse the original buckets, and for each bucket
              * traverse the nodes stored there (via linked-list).
              * For each node (<key, value> pair), add to the new
-             * (grown) bucket list. The re-add process will 
+             * (grown) bucket list. The re-add process will
              * rehash the keys to the new bucket size.
              */
             for (HashNode<K, V> headNode : tmp) {
@@ -398,18 +409,25 @@ class myHashMap<K,V> {
      */
 
     public V replace(K key, V val) {
+        // get the bucket index for the key
+        int index = getBucketIndex(key);
+        HashNode<K, V> head = bucket.get(index);
 
-        /*
-         * ADD YOUR CODE HERE - DO NOT FORGET TO ADD YOUR NAME AT TOP OF FILE
-         *
-         * Make sure you return the proper value based on the outcome of this method's
-         * replace (see method's prologue above).
-         */
-
-        return val;
+        // traverse the chain of nodes
+        while (head != null) {
+            if (head.key.equals(key)) {
+                V oldValue = head.value;
+                // replace the value
+                head.value = val;
+                return oldValue;
+            }
+            head = head.next;
+        }
+        // key not found
+        return null;
     }
 
-    
+
     /**
      * method: boolean replace(K, V, V)
      *
@@ -426,14 +444,12 @@ class myHashMap<K,V> {
      */
 
     public boolean replace(K key, V oldVal, V newVal) {
+        V currentVal = get(key);
 
-        /*
-         * ADD YOUR CODE HERE
-         *
-         * This method should apply the precondition (aka, the Key already exists with the
-         * value 'oldval', and is so, it SHOULD call replace(K, V) for code reuse.
-         */
-
+        if (currentVal != null && currentVal.equals(oldVal)) {
+            replace(key, newVal);
+            return true;
+        }
         return false;
     }
 
